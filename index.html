@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course aux énigmes</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1 id="titre-enigme">Préambule</h1>
+        <div id="contenu-enigme">
+            <!-- Contenu de l'énigme initialisé ici -->
+                <p>Mauvaise pioche, tu as été choisi par un petit Rémi sans famille, enfin, c'est pas mon nom, sinon ce jeu servirait à rien.
+                <br> Bon, bref, l'idée, c'est de trouver mon identité à partir des différents indices laissés ça et là.
+                <br>De plus en plus <i>DISCRIMINANTS</i>, ils devraient te donner un bon aperçu de qui je suis (sans trop de surprise un giga bg mais chut!!!) mais aussi de la vie à TPS.
+                <br>Ne sachant avec quel esprit brillant je converse, disons que par la difficulté des énigmes, je t'autorise à user de tous les stratagèmes possibles !
+                <br>Si tu bloques : 0668289684, même si j'ai quelques doutes, il devrait t'aider!
+                <br><br><b>BON CHANCE !</b> </p>
+            <img id="enigme-image" src="1.png" alt="Image de l'énigme 1" style="width: 300%; max-width: 500px;">
+        </div>
+
+        <form id="enigme-form" onsubmit="return verifierReponse(event)">
+            <input type="text" id="reponse" placeholder="Entrez votre réponse ici">
+            <button type="submit">Valider</button>
+        </form>
+
+        <p id="message-erreur" class="erreur"></p>
+    </div>
+
+    <script>
+        // Variable pour suivre la progression des énigmes
+        let numeroEnigme = 1;
+
+        // Réponses encodées en Base64
+        const reponsesEncodees = {
+            1: "Myw2MQ==",
+            2: "bWFyc2VpbGxl",
+            3: "Y2Fyby1rYW5u",
+            4: "MjI1MA==",
+            5: "cm9ja3lsaXN0ZQ==",
+            6: "a2VobA=="
+        };
+
+        // Contenu HTML des énigmes
+        const contenuEnigmes = {
+            1: `
+                <p>Mauvaise pioche, tu as été choisi par un petit Rémi sans famille... enfin, c'est pas mon nom, sinon ce jeu ne servirait à rien.
+                Bon, bref, l'idée, c'est de trouver mon identité à partir des différents indices laissés ça et là. Qui suis-je ?</p>
+                <img src="image1.jpg" alt="Image de l'énigme 1" style="width: 100%; max-width: 500px;">
+            `,
+            2: `
+                <p>Première énigme, des maths, vraiment… Il faut croire que j'aime bien ça ! Sois content t'aurais pu avoir du dénombrement !
+                <br>Pourtant, tu viens déjà de prouver que tu éteins intellectuellement 90% des gens à TPS !
+                <br>Et puis, c'est une bonne remise en forme pour l'éval surprise de Maioli !
+                J'adore son accent mais je sais pas vraiment d'où il vient (clin d'œil) 
+                <br><p style="font-size: 1px;">je me contenterais la ville de sa prépa</p></p>
+                <img src="2.png" alt="Image de l'énigme 2" style="width: 100%; max-width: 500px;">
+            `,
+            3: `
+                <p>Cet endroit m'est familié, même si pendant mes <b> longues </b> années de prépa, 
+                <br> la bonne mère s'est fait grand remplacer. Ne te méprends pas, j'adore jouer les noirs !</p>
+                <img src="3.png" alt="Image de l'énigme 3" style="width: 100%; max-width: 500px;">
+            `,
+            4: `
+                <p>Et oui, je mange des cartes graphiques :
+                <br>Éminement membre du club échecs ! Cherche pas à trouver ses membres, c'est impossible !
+                <br>J'ai également beaucoup d'heures sur LOL et Minecraft! J'ai joué Veigar à la Grosse League (Tournoi LOL d'écoles d'ingé)
+                <br>Mais le plus amusant, c'est que j'ai eu une chaine youtube mais combien compte-t'elle d'abonées ?</p>
+                <img src="4.png" alt="Image de l'énigme 4" style="width: 300%; max-width: 1000px;">
+            `,
+            5: `
+                <p>Bravo, toutes les vidéos sont en privé mais si t'arrives à la fin de mes énigmes, t'auras peut-être le droit d'en voir une!
+                <br>Après je fais aussi beaucoup de sports : Tennis, Ski, Course à Pieds, Pétanque
+                <br>J'ai même listé pour le BDS mais comment s'appellait cette liste déjà ?</p>
+                <img src="5.png" alt="Image de l'énigme 5" style="width: 100%; max-width: 500px;">
+            `,
+            6: `
+                <p>Ultime Mission
+                <br>Trouve l'Homme sur la photo et tu m'auras trouvé !
+                <br>Attention, il n'a pas été prévenu, il va être compliqué à convaincre !
+                <br>Je veux savoir dans quelle ville a été prise cette photo !</p>
+                <img src="6.png" alt="Image de l'énigme 6" style="width: 100%; max-width: 500px;">
+            `,
+            7: `
+                <p>Finito : bien joué !
+                <br>Ajoute moi sur insta : <b>antoine_pierrard</b>!
+                <br>Trop de meufs dessus, ça permettra de diluer!</p>
+                <p style="color: white; style="font-size: 30px;">https://www.youtube.com/watch?v=MZUbqhCR128&ab_channel=geforce07</p>
+                <img src="7.png" alt="Image de l'énigme 7" style="width: 100%; max-width: 500px;">
+            `
+        };
+
+        // Fonction pour décoder les réponses
+        function decoderBase64(base64) {
+            return atob(base64);
+        }
+
+        // Fonction pour vérifier la réponse
+        function verifierReponse(event) {
+            event.preventDefault();  // Empêche le rechargement de la page
+
+            const reponse = document.getElementById("reponse").value.toLowerCase().trim();  // Récupère la réponse de l'utilisateur
+            const bonneReponse = decoderBase64(reponsesEncodees[numeroEnigme]);  // Décode la réponse de l'énigme actuelle
+
+            const messageErreur = document.getElementById("message-erreur");
+
+            if (reponse === bonneReponse) {
+                chargerEnigmeSuivante();  // Charge l'énigme suivante si la réponse est correcte
+            } else {
+                messageErreur.textContent = "Mauvaise réponse, essayez encore !";
+            }
+        }
+
+        // Fonction pour charger l'énigme suivante
+        function chargerEnigmeSuivante() {
+            numeroEnigme++;  // Passe à l'énigme suivante
+            const titreEnigme = document.getElementById("titre-enigme");
+            const contenuEnigme = document.getElementById("contenu-enigme"); // Conteneur pour le contenu de l'énigme
+            const messageErreur = document.getElementById("message-erreur");
+            const reponseInput = document.getElementById("reponse");
+
+            // Efface le message d'erreur et la réponse précédente
+            messageErreur.textContent = "";
+            reponseInput.value = "";
+
+            // Mise à jour de l'énigme en fonction de la progression
+            switch (numeroEnigme) {
+                case 2:
+                    titreEnigme.textContent = "Énigme 2";
+                    contenuEnigme.innerHTML = contenuEnigmes[2];  // Charge le contenu de l'énigme 2
+                    break;
+                case 3:
+                    titreEnigme.textContent = "Énigme 3";
+                    contenuEnigme.innerHTML = contenuEnigmes[3];  // Charge le contenu de l'énigme 3
+                    break;
+                case 4:
+                    titreEnigme.textContent = "Énigme 4";
+                    contenuEnigme.innerHTML = contenuEnigmes[4];  // Charge le contenu de l'énigme 4
+                    break;
+                case 5:
+                    titreEnigme.textContent = "Énigme 5";
+                    contenuEnigme.innerHTML = contenuEnigmes[5];  // Charge le contenu de l'énigme 4
+                    break;
+                case 6:
+                    titreEnigme.textContent = "Énigme 6";
+                    contenuEnigme.innerHTML = contenuEnigmes[6];  // Charge le contenu de l'énigme 4
+                    break;
+                case 7:
+                    titreEnigme.textContent = "HAPPY END";
+                    contenuEnigme.innerHTML = contenuEnigmes[7];  // Charge le contenu de l'énigme 4
+                break;
+                default:
+                    titreEnigme.textContent = "Félicitations !";
+                    contenuEnigme.innerHTML = "<p>Tu as résolu toutes les énigmes.</p>"; // Affiche le message final
+                    document.getElementById("enigme-form").style.display = "none";  // Cache le formulaire à la fin
+            }
+        }
+    </script>
+</body>
+</html>
